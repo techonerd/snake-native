@@ -28,28 +28,31 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
+    height: '100%',
     backgroundColor: new Color('#3c495e'),
   },
   gameOverText: {
-    fontSize: 24,
+    fontSize: 36,  // Increase the font size for "Game Over"
     fontWeight: 'bold',
     color: new Color('white'),
   },
   scoreText: {
-    fontSize: 20,
+    fontSize: 24,  // Reduce the font size for the score
     color: new Color('white'),
   },
   highScoreText: {
-    fontSize: 20,
+    fontSize: 24,  // Reduce the font size for the high score message
     fontWeight: 'bold',
     color: new Color('yellow'), // Customize the color for the high score message
   },
   restartButton: {
-    fontSize: 18,
-    color: new Color('white'),
+    fontSize: 18,  // Reduce the font size for the button
+    color: new Color('red'),
     backgroundColor: new Color('#65e765'),
-    padding: 10,
+    padding: 5,  // Reduce the padding for the button
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 10,  // Reduce the top margin
   },
 };
+

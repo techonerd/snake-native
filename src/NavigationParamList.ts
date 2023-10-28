@@ -4,4 +4,5 @@
 export type MainStackParamList = {
   Home?: {};
   Game: {};
+  GameOver: {};
 };

@@ -3,10 +3,10 @@ import { BaseNavigationContainer } from '@react-navigation/core';
 import { stackNavigatorFactory } from 'react-nativescript-navigation';
 
 import { HomePage } from './HomePage'; // Assuming your HomePage component is located in 'components'
-import { GameScreen } from './GameScreen';
+import { GameScreen } from './Game';
 import ErrorBoundary from './ErrorBoundary';
 // import { ReopenPrompt } from './PlayAgain';
-// import { GameOverScreen } from './GameOverScreen';
+import { GameOverScreen } from './GameOverScreen';
 
 const StackNavigator = stackNavigatorFactory();
 
@@ -19,6 +19,7 @@ export const MainStack = () => (
       <StackNavigator.Navigator initialRouteName="Screen Home">
         <StackNavigator.Screen name="Home" component={HomePage} />
         <StackNavigator.Screen name="Game" component={GameScreen} />
+        <StackNavigator.Screen name="GameOver" component={GameOverScreen} />
       </StackNavigator.Navigator>
     </ErrorBoundary>
   </BaseNavigationContainer>

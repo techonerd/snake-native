@@ -2,61 +2,44 @@ import * as React from 'react';
 import {
   Color,
   Screen,
-  Image,
-  ImageSource,
-  PanGestureEventData,
   SwipeGestureEventData,
 } from '@nativescript/core';
-import {  GameOverScreen,
-} from './GameOverScreen';
-export function GameScreen() {
-  const availableWidth = Screen.mainScreen.widthDIPs;
-  const availableHeight = Screen.mainScreen.heightDIPs;
-  const gameAreaHeight = 0.8 * availableHeight; // 80% of the screen height
-  const cellSize = Math.min(availableWidth, availableHeight) / 10;
-  const numColumns = Math.floor(availableWidth / cellSize);
-  const numRows = Math.floor(gameAreaHeight / cellSize);
+import {  GameOverScreen } from './GameOverScreen';
+import { RouteProp } from '@react-navigation/core';
+import { MainStackParamList } from '../NavigationParamList';
+import { FrameNavigationProp } from 'react-nativescript-navigation';
 
+type GameProps = {
+  route: RouteProp<MainStackParamList, 'Game'>;
+  navigation: FrameNavigationProp<MainStackParamList, 'Game'>;
+};
+
+const availableWidth = Screen.mainScreen.widthDIPs;
+const availableHeight = Screen.mainScreen.heightDIPs;
+const gameAreaHeight = 0.8 * availableHeight; // 80% of the screen height
+const cellSize = Math.min(availableWidth, availableHeight) / 10;
+const numColumns = Math.floor(availableWidth / cellSize);
+const numRows = Math.floor(gameAreaHeight / cellSize);
+const remainingHeight = gameAreaHeight - numRows * cellSize;
+const topMargin = remainingHeight / 2; 
+const bottomMargin = remainingHeight / 2;
+
+export function GameScreen({ navigation, route }: GameProps) {
   // Define initial game state
   const initialSnake = [
     { x: Math.floor(numColumns / 2), y: Math.floor(numRows / 2) },
     { x: Math.floor(numColumns / 2) - 1, y: Math.floor(numRows / 2) },
     { x: Math.floor(numColumns / 2) - 2, y: Math.floor(numRows / 2) },
   ];
-  // const Image = require("tns-core-modules/ui/image").Image;
-
-// Create an Image element
-// const headImage = new Image();
-// const bodyImage = new Image();
-const headImageSource = ImageSource.fromResource('~/src/media/snake_head.png'); // Replace with the correct path
-const bodyImageSource = ImageSource.fromResource('~/src/media/snake_body.png'); // Replace with the correct path
- 
-const headImage = new Image();
-headImage.src = headImageSource;
-
-const bodyImage = new Image();
-bodyImage.src = bodyImageSource;
+  const directions = ['UP', 'DOWN', 'RIGHT'];
+  const initialDirection = directions[Math.floor(Math.random() * directions.length)];
 
 const resetGame = () => {
-//     // const initialSnake = [
-//     //   { x: Math.floor(numColumns / 2), y: Math.floor(numRows / 2) },
-//     //   { x: Math.floor(numColumns / 2) - 1, y: Math.floor(numRows / 2) },
-//     //   { x: Math.floor(numColumns / 2) - 2, y: Math.floor(numRows / 2) },
-//     // ];
-
     setSnake(initialSnake);
-    // setDirection('UP');
+    setDirection(initialDirection);
     setFood(generateFood(numColumns, numRows, initialSnake));
     setScore(0);
   };
-// Set the source property to the image file using a relative path
-// headImage.src = "~/media/snake_head.png";
-// bodyImage.src = "~/media/snake_body.png";
-  // const headImage = Image(src='~/media/snake_head.png'); // Use the ~ symbol to reference the app directory
-  // const tailImage = new Image();
-  
-  // Set the source property for each image
-  // tailImage.src = "~/media/snake_tail.png";
 
   const [highScore, setHighScore] = React.useState(0);
   
@@ -68,12 +51,11 @@ const resetGame = () => {
   };
 
   const handleRestart = () => {
-    resetGame();
     setGameOver(false);
+    resetGame();
   };
-  // const tailImage = Image.fromResource('~/media/snake_tail.png');
-  
-  const initialDirection = 'UP';
+
+
   const initialFood = generateFood(numColumns, numRows, initialSnake);
   const initialScore = 0;
 
@@ -83,48 +65,47 @@ const resetGame = () => {
   const [score, setScore] = React.useState(initialScore);
   const [gameOver, setGameOver] = React.useState(false);
 
+  const directionRef = React.useRef(direction);
+
+
+  React.useEffect(() => {
+    directionRef.current = direction;
+  }, [direction]);
+
   const handleSwipe = (args: SwipeGestureEventData) => {
     const swipeDirection = args.direction;
-    const currentDirection = direction;
-    console.log('args.direction', args.direction, currentDirection);
-    // if (
-    //   (swipeDirection === 1 && currentDirection === 'LEFT') ||
-    //   (swipeDirection === 2 && currentDirection === 'RIGHT') ||
-    //   (swipeDirection === 4 && currentDirection === 'DOWN') ||
-    //   (swipeDirection === 8 && currentDirection === 'UP')
-    // ) {return; }
-    // Update snake direction based on swipe direction
+    let newDirection;
     switch (swipeDirection) {
       case 1:
-        console.log('Swipe Direction is RIGHT');
-        setDirection('RIGHT');
-        console.log('Direction after update:', direction);
-
+        newDirection = 'RIGHT';
         break;
       case 2:
-        console.log('Swipe Direction is LEFT');
-        setDirection('LEFT');
-        console.log('Direction after update:', direction);
-
+        newDirection = 'LEFT';
         break;
       case 4:
-        console.log('Swipe Direction is UP');
-        setDirection('UP');
-        console.log('Direction after update:', direction);
-
+        newDirection = 'UP';
         break;
       case 8:
-        console.log('Swipe Direction is DOWN');
-        setDirection('DOWN');
-        console.log('Direction after update:', direction);
-
+        newDirection = 'DOWN';
         break;
-      }
-    // }
+      default:
+        return;
+    }
+     if (
+       (newDirection === 'UP' && directionRef.current === 'DOWN') ||
+       (newDirection === 'DOWN' && directionRef.current === 'UP') ||
+       (newDirection === 'LEFT' && directionRef.current === 'RIGHT') ||
+       (newDirection === 'RIGHT' && directionRef.current === 'LEFT')
+       ) {
+         return; // Ignore swipes in the opposite direction
+        }
+        
+        // Update the snake's direction
+        setDirection(newDirection);
   };
-  // Attach touch event handlers
-  const gridLayout = React.useRef(null);
 
+  const gridLayout = React.useRef(null);
+  
   React.useEffect(() => {
     if (gridLayout.current) {
       const grid = gridLayout.current.nativeView;
@@ -132,9 +113,7 @@ const resetGame = () => {
     }
   }, []);
 
-  // Function to move the snake based on the direction
   const moveSnake = () => {
-    // Calculate the new position of the snake based on the direction
     let newSnake = [...snake];
     let head = { ...newSnake[0] };
     switch (direction) {
@@ -152,16 +131,12 @@ const resetGame = () => {
         break;
     }
     
-    console.log(direction);
     for (let i = 1; i < newSnake.length; i++) {
       if (newSnake[i].x === head.x && newSnake[i].y === head.y) {
-        // Game over
         handleGameOver();
-        // setGameOver(true);
         return;
       }
     }
-    // Teleport the snake from one edge to the opposite edge
     if (head.x < 0) {
       head.x = numColumns - 1;
     } else if (head.x >= numColumns) {
@@ -173,15 +148,11 @@ const resetGame = () => {
     } else if (head.y >= numRows) {
       head.y = 0;
     }
-    // Check for collisions with food
     if (head.x === food.x && head.y === food.y) {
-      // Handle collision with food
       setScore(score + 1);
-      console.log(score, 'ssssss');
       setFood(generateFood(numColumns, numRows, newSnake));
       newSnake.push({ ...newSnake[snake.length - 1] });
     } else {
-      // Move the snake in the direction
       newSnake.unshift(head);
       newSnake.pop();
     }
@@ -189,16 +160,13 @@ const resetGame = () => {
     setSnake(newSnake);
   };
 
-  // Attach an interval to move the snake periodically
   React.useEffect(() => {
-    const interval = setInterval(moveSnake, 200);
-
+    const interval = setInterval(moveSnake, 250);
     return () => {
       clearInterval(interval);
     };
   }, [snake, direction]);
 
-  // Function to generate food at a random position
   function generateFood(numColumns, numRows, snake) {
     let food;
     do {
@@ -212,46 +180,39 @@ const resetGame = () => {
     return food;
   }
 
-  // Render the game grid
   const renderGameGrid = () => {
     const gridItems = [];
-
     for (let row = 0; row < numRows; row++) {
       const rowItems = [];
-      // Define the head and body emojis
-
       for (let col = 0; col < numColumns; col++) {
         const isSnakeSegment = snake.some(
           (segment) => segment.x === col && segment.y === row
         );
         const isFood = food.x === col && food.y === row;
-        // console.log(`Max Column: ${numColumns}, Max Grid: ${numRows}`);
-        const headEmoji = '🐍'; // You can change this to your preferred emoji
-        const bodyEmoji = '◆'; // You can change this to your preferred emoji
         let cellContent = null;
 
-        // Determine the cell's background color based on game state
         const foodEmoji = Math.random() < 0.5 ? '🐁' : '🐀';
         let cellBackgroundColor = 'transparent';
         if (isSnakeSegment) {
           const isHead = snake[0].x === col && snake[0].y === row;
-          cellContent = (
-            <label
-              text={isHead ? headEmoji : bodyEmoji}
-              style={{ fontSize: 24 }}
+          if (isHead){
+            cellContent = (
+              <label
+              style={{
+                borderRadius: '0 0 50px 50px',
+                background: 'green',
+                width: cellSize, height: cellSize,
+              }}
             ></label>
-            // <image
-            //   src={isHead ? headImage : bodyImage}
-            //   width={cellSize}
-            //   height={cellSize}
-            // ></image>
           );
-          // cellBackgroundColor = 'green';
+        } else {
+          cellBackgroundColor = 'green';
+        } 
+        
         } else if (isFood) {
           cellContent = (
             <label text={foodEmoji} style={{ fontSize: 24 }}></label>
           );
-          // cellBackgroundColor = 'red';
         }
 
         const cellStyle = {
@@ -268,7 +229,6 @@ const resetGame = () => {
             {cellContent}
           </stackLayout>
         );
-        // rowItems.push(<label key={cellKey} style={cellStyle} />);
       }
       const rowKey = `row-${row}`;
 
@@ -278,27 +238,34 @@ const resetGame = () => {
         </flexboxLayout>
       );
     }
-
+    
     return <stackLayout style={styles.gameArea}>{gridItems}</stackLayout>;
   };
-
-  // Render the game screen
+  
+  const gridStyle = {
+    marginTop: topMargin,
+    marginBottom: bottomMargin,
+    backgroundColor: new Color('#3c495e'),
+  };
   return (
-    <stackLayout ref={gridLayout} style={styles.container}>
-            {gameOver ? (
-        <GameOverScreen score={score} highScore={highScore} onRestart={handleRestart} />
-      ) : (
-        renderGameGrid()
-      )}
-      <flexboxLayout
-        style={styles.bottomBar}
-        // row="2"
-        flexDirection="row"
-        justifyContent="center"
-      >
-        <label text={`Score: ${score}`} style={styles.currentScore} />
-      </flexboxLayout>
-    </stackLayout>
+    <gridLayout rows="auto, *, auto">
+  <flexboxLayout row="0" style={styles.topBar}>
+    <button text="Pause" style={styles.pauseButton} />
+    <label text={`High Score: ${highScore}`} style={styles.highScore} />
+    <button text="FAQ" style={styles.faqIcon} />
+  </flexboxLayout>
+  <stackLayout ref={gridLayout} row="1" style={{ ...styles.gameArea, ...gridStyle }}>
+    {gameOver ? (
+      <GameOverScreen score={score} highScore={highScore} onRestart={handleRestart} />
+    ) : (
+      renderGameGrid()
+    )}
+  </stackLayout>
+  <flexboxLayout row="2" style={styles.bottomBar}>
+    <label text={`Score: ${score}`} style={styles.currentScore} />
+  </flexboxLayout>
+</gridLayout>
+
   );
 }
 
@@ -308,18 +275,41 @@ const styles = {
     alignItems: 'center',
     backgroundColor: new Color('#3c495e'),
   },
+  topBar: {
+    backgroundColor: new Color('#65e765'),
+    padding: 10,
+    height: '8%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   gameArea: {
-    flex: 1,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: new Color('#3c495e'),
+  },
+  pauseButton: {
+    color: new Color('white'),
+    backgroundColor: new Color('red'),
+    padding: 10,
+    fontSize: 24,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  highScore: {
+    color: new Color('white'),
+    fontSize: 20,
+    flex: 1,
+  },
+  faqIcon: {
+    // Style for your FAQ icon
   },
   bottomBar: {
     backgroundColor: new Color('#65e765'),
-    // padding: 10,
-    // height: '7%',
     flexDirection: 'row',
     alignItems: 'center',
+    padding: 10,
+    height: 'auto',
   },
   currentScore: {
     color: new Color('white'),
@@ -336,4 +326,3 @@ const styles = {
     fontWeight: 'bold',
   },
 };
-

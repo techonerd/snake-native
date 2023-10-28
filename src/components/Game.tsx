@@ -3,10 +3,12 @@ import {
   Color,
   Screen,
   Image,
+  ImageSource,
   PanGestureEventData,
   SwipeGestureEventData,
 } from '@nativescript/core';
-
+import {  GameOverScreen,
+} from './GameOverScreen';
 export function GameScreen() {
   const availableWidth = Screen.mainScreen.widthDIPs;
   const availableHeight = Screen.mainScreen.heightDIPs;
@@ -21,10 +23,56 @@ export function GameScreen() {
     { x: Math.floor(numColumns / 2) - 1, y: Math.floor(numRows / 2) },
     { x: Math.floor(numColumns / 2) - 2, y: Math.floor(numRows / 2) },
   ];
-  const headImage = Image.fromResource('~/media/snake_head.png'); // Use the ~ symbol to reference the app directory
-  const bodyImage = Image.fromResource('~/media/snake_body.png');
-  const tailImage = Image.fromResource('~/media/snake_tail.png');
+  // const Image = require("tns-core-modules/ui/image").Image;
 
+// Create an Image element
+// const headImage = new Image();
+// const bodyImage = new Image();
+const headImageSource = ImageSource.fromResource('~/src/media/snake_head.png'); // Replace with the correct path
+const bodyImageSource = ImageSource.fromResource('~/src/media/snake_body.png'); // Replace with the correct path
+ 
+const headImage = new Image();
+headImage.src = headImageSource;
+
+const bodyImage = new Image();
+bodyImage.src = bodyImageSource;
+
+const resetGame = () => {
+//     // const initialSnake = [
+//     //   { x: Math.floor(numColumns / 2), y: Math.floor(numRows / 2) },
+//     //   { x: Math.floor(numColumns / 2) - 1, y: Math.floor(numRows / 2) },
+//     //   { x: Math.floor(numColumns / 2) - 2, y: Math.floor(numRows / 2) },
+//     // ];
+
+    setSnake(initialSnake);
+    // setDirection('UP');
+    setFood(generateFood(numColumns, numRows, initialSnake));
+    setScore(0);
+  };
+// Set the source property to the image file using a relative path
+// headImage.src = "~/media/snake_head.png";
+// bodyImage.src = "~/media/snake_body.png";
+  // const headImage = Image(src='~/media/snake_head.png'); // Use the ~ symbol to reference the app directory
+  // const tailImage = new Image();
+  
+  // Set the source property for each image
+  // tailImage.src = "~/media/snake_tail.png";
+
+  const [highScore, setHighScore] = React.useState(0);
+  
+  const handleGameOver = () => {
+    if (score > highScore) {
+      setHighScore(score);
+    }
+    setGameOver(true);
+  };
+
+  const handleRestart = () => {
+    resetGame();
+    setGameOver(false);
+  };
+  // const tailImage = Image.fromResource('~/media/snake_tail.png');
+  
   const initialDirection = 'UP';
   const initialFood = generateFood(numColumns, numRows, initialSnake);
   const initialScore = 0;
@@ -34,16 +82,17 @@ export function GameScreen() {
   const [food, setFood] = React.useState(initialFood);
   const [score, setScore] = React.useState(initialScore);
   const [gameOver, setGameOver] = React.useState(false);
-  // 🐁🐁🐀
+
   const handleSwipe = (args: SwipeGestureEventData) => {
     const swipeDirection = args.direction;
-    console.log('args.direction', args.direction, direction);
+    const currentDirection = direction;
+    console.log('args.direction', args.direction, currentDirection);
     // if (
-    //   (swipeDirection === 1 && direction !== 'LEFT') ||
-    //   (swipeDirection === 2 && direction !== 'RIGHT') ||
-    //   (swipeDirection === 4 && direction !== 'DOWN') ||
-    //   (swipeDirection === 8 && direction !== 'UP')
-    // ) {
+    //   (swipeDirection === 1 && currentDirection === 'LEFT') ||
+    //   (swipeDirection === 2 && currentDirection === 'RIGHT') ||
+    //   (swipeDirection === 4 && currentDirection === 'DOWN') ||
+    //   (swipeDirection === 8 && currentDirection === 'UP')
+    // ) {return; }
     // Update snake direction based on swipe direction
     switch (swipeDirection) {
       case 1:
@@ -70,8 +119,8 @@ export function GameScreen() {
         console.log('Direction after update:', direction);
 
         break;
-      // }
-    }
+      }
+    // }
   };
   // Attach touch event handlers
   const gridLayout = React.useRef(null);
@@ -102,11 +151,13 @@ export function GameScreen() {
         head.x += 1;
         break;
     }
+    
     console.log(direction);
     for (let i = 1; i < newSnake.length; i++) {
       if (newSnake[i].x === head.x && newSnake[i].y === head.y) {
         // Game over
-        setGameOver(true);
+        handleGameOver();
+        // setGameOver(true);
         return;
       }
     }
@@ -140,7 +191,7 @@ export function GameScreen() {
 
   // Attach an interval to move the snake periodically
   React.useEffect(() => {
-    const interval = setInterval(moveSnake, 150);
+    const interval = setInterval(moveSnake, 200);
 
     return () => {
       clearInterval(interval);
@@ -185,15 +236,15 @@ export function GameScreen() {
         if (isSnakeSegment) {
           const isHead = snake[0].x === col && snake[0].y === row;
           cellContent = (
-            // <label
-            //   text={isHead ? headEmoji : bodyEmoji}
-            //   style={{ fontSize: 24 }}
-            // ></label>
-            <image
-              src={isHead ? headImage : bodyImage}
-              width={cellSize}
-              height={cellSize}
-            ></image>
+            <label
+              text={isHead ? headEmoji : bodyEmoji}
+              style={{ fontSize: 24 }}
+            ></label>
+            // <image
+            //   src={isHead ? headImage : bodyImage}
+            //   width={cellSize}
+            //   height={cellSize}
+            // ></image>
           );
           // cellBackgroundColor = 'green';
         } else if (isFood) {
@@ -234,7 +285,11 @@ export function GameScreen() {
   // Render the game screen
   return (
     <stackLayout ref={gridLayout} style={styles.container}>
-      {renderGameGrid()}
+            {gameOver ? (
+        <GameOverScreen score={score} highScore={highScore} onRestart={handleRestart} />
+      ) : (
+        renderGameGrid()
+      )}
       <flexboxLayout
         style={styles.bottomBar}
         // row="2"
@@ -281,3 +336,4 @@ const styles = {
     fontWeight: 'bold',
   },
 };
+

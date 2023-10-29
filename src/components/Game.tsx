@@ -4,7 +4,7 @@ import {
   Screen,
   SwipeGestureEventData,
 } from '@nativescript/core';
-import {  GameOverScreen } from './GameOverScreen';
+import { GameOverScreen } from './GameOverScreen';
 import { RouteProp } from '@react-navigation/core';
 import { MainStackParamList } from '../NavigationParamList';
 import { FrameNavigationProp } from 'react-nativescript-navigation';
@@ -21,10 +21,10 @@ const cellSize = Math.min(availableWidth, availableHeight) / 10;
 const numColumns = Math.floor(availableWidth / cellSize);
 const numRows = Math.floor(gameAreaHeight / cellSize);
 const remainingHeight = gameAreaHeight - numRows * cellSize;
-const topMargin = remainingHeight / 2; 
+const topMargin = remainingHeight / 2;
 const bottomMargin = remainingHeight / 2;
 
-export function GameScreen({ navigation, route }: GameProps) {
+export function GameScreen({ navigation }: GameProps) {
   // Define initial game state
   const initialSnake = [
     { x: Math.floor(numColumns / 2), y: Math.floor(numRows / 2) },
@@ -34,7 +34,7 @@ export function GameScreen({ navigation, route }: GameProps) {
   const directions = ['UP', 'DOWN', 'RIGHT'];
   const initialDirection = directions[Math.floor(Math.random() * directions.length)];
 
-const resetGame = () => {
+  const resetGame = () => {
     setSnake(initialSnake);
     setDirection(initialDirection);
     setFood(generateFood(numColumns, numRows, initialSnake));
@@ -42,7 +42,7 @@ const resetGame = () => {
   };
 
   const [highScore, setHighScore] = React.useState(0);
-  
+
   const handleGameOver = () => {
     if (score > highScore) {
       setHighScore(score);
@@ -91,21 +91,21 @@ const resetGame = () => {
       default:
         return;
     }
-     if (
-       (newDirection === 'UP' && directionRef.current === 'DOWN') ||
-       (newDirection === 'DOWN' && directionRef.current === 'UP') ||
-       (newDirection === 'LEFT' && directionRef.current === 'RIGHT') ||
-       (newDirection === 'RIGHT' && directionRef.current === 'LEFT')
-       ) {
-         return; // Ignore swipes in the opposite direction
-        }
-        
-        // Update the snake's direction
-        setDirection(newDirection);
+    if (
+      (newDirection === 'UP' && directionRef.current === 'DOWN') ||
+      (newDirection === 'DOWN' && directionRef.current === 'UP') ||
+      (newDirection === 'LEFT' && directionRef.current === 'RIGHT') ||
+      (newDirection === 'RIGHT' && directionRef.current === 'LEFT')
+    ) {
+      return; // Ignore swipes in the opposite direction
+    }
+
+    // Update the snake's direction
+    setDirection(newDirection);
   };
 
   const gridLayout = React.useRef(null);
-  
+
   React.useEffect(() => {
     if (gridLayout.current) {
       const grid = gridLayout.current.nativeView;
@@ -130,7 +130,7 @@ const resetGame = () => {
         head.x += 1;
         break;
     }
-    
+
     for (let i = 1; i < newSnake.length; i++) {
       if (newSnake[i].x === head.x && newSnake[i].y === head.y) {
         handleGameOver();
@@ -179,22 +179,7 @@ const resetGame = () => {
     );
     return food;
   }
-  const diamondStyle = {
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftWidth: cellSize / 2,
-    borderRightWidth: cellSize / 2,
-    borderBottomWidth: cellSize,
-    borderTopWidth: cellSize,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'red',
-    borderBottomColor: 'transparent',
-    borderTopColor: '#90EE90',
-  };
-  
-  
+
   const renderGameGrid = () => {
     const gridItems = [];
     for (let row = 0; row < numRows; row++) {
@@ -205,37 +190,34 @@ const resetGame = () => {
         );
         const isFood = food.x === col && food.y === row;
         let cellContent = null;
-        
+
         const foodEmoji = Math.random() < 0.5 ? '🐁' : '🐀';
         let cellBackgroundColor = 'transparent';
         if (isSnakeSegment) {
           const isHead = snake[0].x === col && snake[0].y === row;
-          if (isHead){
+          if (isHead) {
             cellContent = (
               <label
-              style={{
-                borderRadius: '50px 50px 50px 50px',
-                background: '#90EE90',
-                width: cellSize, height: cellSize,
-              }}
-            ></label>
-          );
+                style={{
+                  borderRadius: '30px 30px 30px 30px',
+                  background: '#90EE90',
+                  width: cellSize, height: cellSize,
+                }}
+              ></label>
+            );
             // cellBackgroundColor = '#90EE90';
           } else {
             cellContent = (
-          //     <label
-          //     style={{
-          //       borderRadius: '50px 50px 50px 50px',
-          //       background: '#90EE90',
-          //       width: cellSize, height: cellSize,
-          //     }}
-          //   ></label>
-          // );
-          <label style={diamondStyle}>
-          </label>
-          );
-        } 
-        
+              <label
+                style={{
+                  borderRadius: '50px 50px 50px 50px',
+                  background: '#90EE90',
+                  width: cellSize, height: cellSize,
+                }}
+              ></label>
+            );
+          }
+
         } else if (isFood) {
           cellContent = (
             <label text={foodEmoji} style={{ fontSize: 24 }}></label>
@@ -265,36 +247,31 @@ const resetGame = () => {
         </flexboxLayout>
       );
     }
-    
+
     return <stackLayout style={styles.gameArea}>{gridItems}</stackLayout>;
   };
-  
+
   const gridStyle = {
     marginTop: topMargin,
     marginBottom: bottomMargin,
     backgroundColor: new Color('#3c495e'),
   };
   return (
-    <gridLayout rows="auto, *, auto"  style={{ backgroundColor: 'black' }}>
-  <flexboxLayout row="0" style={styles.topBar}>
-    {/* <button text="Pause" style={styles.pauseButton} /> */}
-
-    <i class="fa-solid fa-question fa-lg" style="color: #ffffff;"></i>
-    <label text={`High Score: ${highScore}`} style={styles.highScore} />
-    <button text="FAQ" style={styles.faqIcon} />
-  </flexboxLayout>
-  <stackLayout ref={gridLayout} row="1" style={{ ...styles.gameArea, ...gridStyle }}>
-    {gameOver ? (
-      <GameOverScreen score={score} highScore={highScore} onRestart={handleRestart} />
-    ) : (
-      renderGameGrid()
-    )}
-  </stackLayout>
-  <flexboxLayout row="2" style={styles.bottomBar}>
-    <label text={`Score: ${score}`} style={styles.currentScore} />
-  </flexboxLayout>
-</gridLayout>
-
+    <gridLayout rows="auto, *, auto" style={{ backgroundColor: '#3c495e' }}>
+      <flexboxLayout row="0" style={styles.topBar}>
+        <label text={`${score}`} style={styles.currentScore} />
+      </flexboxLayout>
+      <stackLayout ref={gridLayout} row="1" style={{ ...styles.gameArea, ...gridStyle }}>
+        {gameOver ? (
+          <GameOverScreen score={score} highScore={highScore} onRestart={handleRestart} />
+        ) : (
+          renderGameGrid()
+        )}
+      </stackLayout>
+      <flexboxLayout row="2" style={styles.bottomBar}>
+        <label text={`HIGH SCORE: ${highScore}`} style={styles.highScore} />
+      </flexboxLayout>
+    </gridLayout>
   );
 }
 
@@ -310,7 +287,7 @@ const styles = {
     height: '8%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
   gameArea: {
     flexDirection: 'column',
@@ -318,45 +295,22 @@ const styles = {
     justifyContent: 'center',
     backgroundColor: new Color('#3c495e'),
   },
-  pauseButton: {
-    color: new Color('white'),
-    backgroundColor: new Color('red'),
-    padding: 10,
-    fontSize: 24,
-    borderRadius: 5,
-    marginRight: 10,
-  },
-  highScore: {
-    color: new Color('white'),
-    fontSize: 20,
-    flex: 1, // Takes up available space to push the other items to the right
-    textAlign: 'center', // Center-align the text
-  },
-  faqIcon: {
-    // Style for your FAQ icon
-  },
-  bottomBar: {
-    backgroundColor: new Color('#3c495e'),
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    height: 'auto',
-    justifyContent: 'space-between',
-  },
   currentScore: {
     color: new Color('white'),
-    fontSize: 20,
+    fontSize: 40,
     flex: 1,
-    textAlign: 'center', 
+    textAlign: 'center',
   },
-  gameOverContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+  bottomBar: {
+    display: 'flex',
     backgroundColor: new Color('#3c495e'),
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  gameOverText: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  highScore: {
+    flex: 1,
+    color: new Color('white'),
+    fontSize: 30,
+    marginBottom: 8,
   },
 };

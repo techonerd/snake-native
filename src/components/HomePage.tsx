@@ -4,7 +4,6 @@ import { StyleSheet } from 'react-nativescript';
 import { FrameNavigationProp } from 'react-nativescript-navigation';
 
 import { MainStackParamList } from '../NavigationParamList';
-// import { Dialogs } from '@nativescript/core';
 
 type HomeProps = {
   route: RouteProp<MainStackParamList, 'Home'>;
@@ -12,18 +11,14 @@ type HomeProps = {
 };
 
 export function HomePage({ navigation }: HomeProps) {
-  const navigateToGame = () => {
-    console.log('Navigating to Game Screen'); // Add this line
-    navigation.navigate('Game');
-  };
   return (
     <flexboxLayout style={styles.container}>
-      <label text="Snake Game" style={styles.title} />
+      <label text={"SNAKE GAME"} style={styles.title} />
       <button
-        onTap={() => navigation.navigate('Game', { message: 'Hello, world!' })}
+        onTap={() => navigation.navigate('Game')}
         style={styles.button}
       >
-        Start Game
+        Start
       </button>
     </flexboxLayout>
   );
@@ -34,18 +29,19 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#90EE90', // Brown color
+    backgroundColor: '#90EE90',
     height: '100%',
   },
   title: {
-    fontSize: 36,
+    fontSize: 48,
     fontWeight: 'bold',
     color: 'white',
-    marginTop: '10%', // Push the text 10% below the top
+    marginTop: '10%',
     marginBottom: 20,
   },
   button: {
     fontSize: 24,
+    fontWeight: 'bold',
     color: 'white',
     backgroundColor: '#008CBA',
     padding: 10,

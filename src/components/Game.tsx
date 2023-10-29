@@ -179,7 +179,22 @@ const resetGame = () => {
     );
     return food;
   }
-
+  const diamondStyle = {
+    width: 0,
+    height: 0,
+    backgroundColor: 'transparent',
+    borderStyle: 'solid',
+    borderLeftWidth: cellSize / 2,
+    borderRightWidth: cellSize / 2,
+    borderBottomWidth: cellSize,
+    borderTopWidth: cellSize,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'red',
+    borderBottomColor: 'transparent',
+    borderTopColor: '#90EE90',
+  };
+  
+  
   const renderGameGrid = () => {
     const gridItems = [];
     for (let row = 0; row < numRows; row++) {
@@ -190,7 +205,7 @@ const resetGame = () => {
         );
         const isFood = food.x === col && food.y === row;
         let cellContent = null;
-
+        
         const foodEmoji = Math.random() < 0.5 ? '🐁' : '🐀';
         let cellBackgroundColor = 'transparent';
         if (isSnakeSegment) {
@@ -199,14 +214,26 @@ const resetGame = () => {
             cellContent = (
               <label
               style={{
-                borderRadius: '0 0 50px 50px',
-                background: 'green',
+                borderRadius: '50px 50px 50px 50px',
+                background: '#90EE90',
                 width: cellSize, height: cellSize,
               }}
             ></label>
           );
-        } else {
-          cellBackgroundColor = 'green';
+            // cellBackgroundColor = '#90EE90';
+          } else {
+            cellContent = (
+          //     <label
+          //     style={{
+          //       borderRadius: '50px 50px 50px 50px',
+          //       background: '#90EE90',
+          //       width: cellSize, height: cellSize,
+          //     }}
+          //   ></label>
+          // );
+          <label style={diamondStyle}>
+          </label>
+          );
         } 
         
         } else if (isFood) {
@@ -248,9 +275,11 @@ const resetGame = () => {
     backgroundColor: new Color('#3c495e'),
   };
   return (
-    <gridLayout rows="auto, *, auto">
+    <gridLayout rows="auto, *, auto"  style={{ backgroundColor: 'black' }}>
   <flexboxLayout row="0" style={styles.topBar}>
-    <button text="Pause" style={styles.pauseButton} />
+    {/* <button text="Pause" style={styles.pauseButton} /> */}
+
+    <i class="fa-solid fa-question fa-lg" style="color: #ffffff;"></i>
     <label text={`High Score: ${highScore}`} style={styles.highScore} />
     <button text="FAQ" style={styles.faqIcon} />
   </flexboxLayout>
@@ -276,11 +305,12 @@ const styles = {
     backgroundColor: new Color('#3c495e'),
   },
   topBar: {
-    backgroundColor: new Color('#65e765'),
+    backgroundColor: new Color('#3c495e'),
     padding: 10,
     height: '8%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   gameArea: {
     flexDirection: 'column',
@@ -299,27 +329,31 @@ const styles = {
   highScore: {
     color: new Color('white'),
     fontSize: 20,
-    flex: 1,
+    flex: 1, // Takes up available space to push the other items to the right
+    textAlign: 'center', // Center-align the text
   },
   faqIcon: {
     // Style for your FAQ icon
   },
   bottomBar: {
-    backgroundColor: new Color('#65e765'),
+    backgroundColor: new Color('#3c495e'),
     flexDirection: 'row',
     alignItems: 'center',
     padding: 10,
     height: 'auto',
+    justifyContent: 'space-between',
   },
   currentScore: {
     color: new Color('white'),
     fontSize: 20,
     flex: 1,
+    textAlign: 'center', 
   },
   gameOverContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: new Color('#3c495e'),
   },
   gameOverText: {
     fontSize: 24,
